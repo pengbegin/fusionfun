@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FusionFun - Agent原生游戏引擎 | AI驱动下一代游戏创作</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#FFFDF5',
+            slate: {
+              800: '#1E293B',
+              500: '#64748B',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+            },
+            accent: '#8B5CF6',
+            pink: '#F472B6',
+            amber: '#FBBF24',
+            mint: '#34D399',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'system-ui', 'sans-serif'],
+            jakarta: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'pop': '4px 4px 0px 0px #1E293B',
+            'pop-lg': '8px 8px 0px 0px #1E293B',
+            'pop-pink': '8px 8px 0px 0px #F472B6',
+            'pop-hover': '6px 6px 0px 0px #1E293B',
+          },
+          borderRadius: {
+            'blob': 'rounded-t-full rounded-b-none',
+          },
+          animation: {
+            'bounce-in': 'bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+            'wiggle': 'wiggle 0.5s ease-in-out infinite',
+            'float': 'float 3s ease-in-out infinite',
+            'marquee': 'marquee 25s linear infinite',
+          },
+          keyframes: {
+            bounceIn: {
+              '0%': { transform: 'scale(0)', opacity: '0' },
+              '70%': { transform: 'scale(1.1)' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+            wiggle: {
+              '0%, 100%': { transform: 'rotate(-3deg)' },
+              '50%': { transform: 'rotate(3deg)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #FFFDF5;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', system-ui, sans-serif;
+    }
+    .blob-mask {
+      clip-path: url(#blobPath);
+    }
+    .dot-pattern {
+      background-image: radial-gradient(#8B5CF6 1.5px, transparent 1.5px);
+      background-size: 20px 20px;
+    }
+    .stripe-pattern {
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        #FBBF24 10px,
+        #FBBF24 20px
+      );
+      opacity: 0.1;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased">
+  <!-- SVG Blob Definitions -->
+  <svg class="absolute w-0 h-0">
+    <defs>
+      <clipPath id="blobPath" clipPathUnits="objectBoundingBox">
+        <path d="M0.5,0 C0.8,0.1 1,0.3 1,0.5 C1,0.8 0.8,1 0.5,1 C0.2,1 0,0.8 0,0.5 C0,0.3 0.2,0.1 0.5,0 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-cream/90 backdrop-blur-sm border-b-2 border-slate-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center border-2 border-slate-800 shadow-pop">
+          <span class="text-white font-outfit font-bold text-lg">F</span>
+        </div>
+        <span class="font-outfit font-bold text-xl text-slate-800">FusionFun</span>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#features" class="font-jakarta font-medium text-slate-600 hover:text-accent transition-colors">功能</a>
+        <a href="#vision" class="font-jakarta font-medium text-slate-600 hover:text-accent transition-colors">愿景</a>
+        <a href="#contact" class="font-jakarta font-medium text-slate-600 hover:text-accent transition-colors">联系我们</a>
+      </div>
+      <button class="bg-accent text-white font-outfit font-bold px-6 py-2.5 rounded-full border-2 border-slate-800 shadow-pop hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-pop-hover active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1E293B] transition-all duration-300">
+        立即体验
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen pt-24 overflow-hidden">
+    <!-- Background Decorations -->
+    <div class="absolute inset-0 dot-pattern opacity-30"></div>
+    <div class="absolute top-40 -left-20 w-80 h-80 bg-amber rounded-full opacity-20 blur-3xl"></div>
+    <div class="absolute top-60 -right-20 w-96 h-96 bg-pink rounded-full opacity-20 blur-3xl"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div class="order-2 lg:order-1">
+        <div class="inline-flex items-center gap-2 bg-white border-2 border-slate-800 rounded-full px-4 py-2 mb-6 shadow-pop">
+          <span class="w-2 h-2 bg-mint rounded-full animate-pulse"></span>
+          <span class="font-jakarta text-sm font-medium">AI Agent 驱动的游戏引擎</span>
+        </div>
+        
+        <h1 class="font-outfit font-extrabold text-5xl lg:text-6xl leading-tight mb-6">
+          用 <span class="text-accent">AI Agent</span> 创造<br>
+          下一代游戏
+        </h1>
+        
+        <p class="font-jakarta text-lg text-slate-500 mb-8 max-w-xl">
+          告别传统引擎的高门槛。FusionFun 让 AI Agent 成为你的虚拟游戏开发者，从玩法设计到美术表现，全程自动化。
+        </p>
+        
+        <div class="flex flex-wrap gap-4">
+          <button class="bg-accent text-white font-outfit font-bold px-8 py-4 rounded-full border-2 border-slate-800 shadow-pop hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-pop-hover active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1E293B] transition-all duration-300 flex items-center gap-2">
+            开始创作
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </button>
+          <button class="bg-transparent text-slate-800 font-outfit font-bold px-8 py-4 rounded-full border-2 border-slate-800 hover:bg-amber transition-all duration-300">
+            观看演示
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex gap-8 mt-12 pt-8 border-t-2 border-slate-200">
+          <div>
+            <div class="font-outfit font-bold text-3xl text-accent">10x</div>
+            <div class="font-jakarta text-sm text-slate-500">开发效率提升</div>
+          </div>
+          <div>
+            <div class="font-outfit font-bold text-3xl text-pink">0 门槛</div>
+            <div class="font-jakarta text-sm text-slate-500">无需编程经验</div>
+          </div>
+          <div>
+            <div class="font-outfit font-bold text-3xl text-amber">24/7</div>
+            <div class="font-jakarta text-sm text-slate-500">AI 持续迭代</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="order-1 lg:order-2 relative">
+        <!-- Decorative Circle Behind -->
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-amber rounded-full border-2 border-slate-800 shadow-pop-lg"></div>
+        
+        <!-- Main Image Container -->
+        <div class="relative bg-white border-2 border-slate-800 rounded-3xl p-6 shadow-pop-lg rotate-1 hover:rotate-0 transition-transform duration-500">
+          <!-- Mock UI -->
+          <div class="space-y-4">
+            <!-- Header -->
+            <div class="flex items-center gap-3 pb-4 border-b-2 border-slate-100">
+              <div class="w-8 h-8 bg-accent rounded-lg border border-slate-800"></div>
+              <div class="h-3 bg-slate-200 rounded w-32"></div>
+            </div>
+            
+            <!-- Content Grid -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="aspect-square bg-gradient-to-br from-accent/20 to-pink/20 rounded-2xl border border-slate-200"></div>
+              <div class="aspect-square bg-gradient-to-br from-amber/20 to-mint/20 rounded-2xl border border-slate-200"></div>
+              <div class="aspect-square bg-gradient-to-br from-pink/20 to-accent/20 rounded-2xl border border-slate-200"></div>
+            </div>
+            
+            <!-- Code Block -->
+            <div class="bg-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-2">
+              <div><span class="text-pink">const</span> <span class="text-amber">agent</span> = <span class="text-mint">await</span> createAgent();</div>
+              <div>agent.<span class="text-accent">designGameplay</span>({ genre: 'RPG' });</div>
+              <div>agent.<span class="text-accent">generateArt</span>({ style: 'anime' });</div>
+              <div class="text-slate-500">// 🎮 游戏生成中...</div>
+            </div>
+          </div>
+          
+          <!-- Floating Elements -->
+          <div class="absolute -right-6 -bottom-6 bg-mint text-white font-outfit font-bold px-4 py-2 rounded-2xl border-2 border-slate-800 shadow-pop animate-float">
+            ✨ 自动生成
+          </div>
+          <div class="absolute -left-8 top-1/3 bg-pink text-white font-outfit font-bold px-4 py-2 rounded-2xl border-2 border-slate-800 shadow-pop-pink animate-float" style="animation-delay: 0.5s;">
+            🎮 好玩优先
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave Divider -->
+    <div class="absolute bottom-0 left-0 right-0">
+      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#FFFDF5"/>
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F472B6" fill-opacity="0.1"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Problems Section -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="font-outfit font-bold text-4xl mb-4">传统引擎的困境</h2>
+        <p class="font-jakarta text-slate-500 text-lg max-w-2xl mx-auto">用AI做游戏的你是否也遇到过这些问题？</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Problem 1 -->
+        <div class="bg-cream border-2 border-slate-800 rounded-2xl p-8 shadow-pop hover:shadow-pop-lg hover:-translate-y-1 transition-all duration-300">
+          <div class="w-14 h-14 bg-pink rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop">
+            <span class="text-2xl">🎮</span>
+          </div>
+          <h3 class="font-outfit font-bold text-xl mb-3">玩法实现了但不好玩</h3>
+          <p class="font-jakarta text-slate-500">复杂玩法 hold 不住，会陷入反复修 Bug 中。AI 能实现功能，但无法把握"好玩"的本质。</p>
+        </div>
+        
+        <!-- Problem 2 -->
+        <div class="bg-cream border-2 border-slate-800 rounded-2xl p-8 shadow-pop hover:shadow-pop-lg hover:-translate-y-1 transition-all duration-300">
+          <div class="w-14 h-14 bg-amber rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop">
+            <span class="text-2xl">🎨</span>
+          </div>
+          <h3 class="font-outfit font-bold text-xl mb-3">画面差，很难提升</h3>
+          <p class="font-jakarta text-slate-500">AI 生成的游戏画面粗糙，缺乏专业的美术设计，审美和细节都难以达标。</p>
+        </div>
+        
+        <!-- Problem 3 -->
+        <div class="bg-cream border-2 border-slate-800 rounded-2xl p-8 shadow-pop hover:shadow-pop-lg hover:-translate-y-1 transition-all duration-300">
+          <div class="w-14 h-14 bg-accent rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop">
+            <span class="text-2xl">🔄</span>
+          </div>
+          <h3 class="font-outfit font-bold text-xl mb-3">反复修改，进度缓慢</h3>
+          <p class="font-jakarta text-slate-500">游戏生成后一测各种 Bug，就算没 Bug 前几个版本也不好玩，需要反复输入修改意见。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solutions Section -->
+  <section id="features" class="py-20 bg-cream">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="font-outfit font-bold text-4xl mb-4">FusionFun 解决方案</h2>
+        <p class="font-jakarta text-slate-500 text-lg max-w-2xl mx-auto">三大核心 Agent，全方位提升你的游戏开发体验</p>
+      </div>
+      
+      <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Solution 1 -->
+        <div class="bg-white border-2 border-slate-800 rounded-2xl p-8 shadow-pop-lg relative overflow-hidden group">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          
+          <div class="relative z-10">
+            <div class="w-16 h-16 bg-accent rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop group-hover:animate-wiggle">
+              <span class="text-3xl">🧠</span>
+            </div>
+            <h3 class="font-outfit font-bold text-2xl mb-4 text-accent">策划 Agent</h3>
+            <p class="font-jakarta text-slate-500 mb-6">解决玩法设计问题。AI 深度理解游戏机制，创造有趣、平衡、有深度的游戏玩法。</p>
+            
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">智能玩法设计</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">平衡性深度调优</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">玩家体验优化</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Solution 2 -->
+        <div class="bg-white border-2 border-slate-800 rounded-2xl p-8 shadow-pop-lg relative overflow-hidden group" style="transform: scale(1.05);">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-pink/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div class="absolute -top-4 -right-4 bg-amber text-slate-800 font-outfit font-bold px-4 py-1 rounded-full border-2 border-slate-800 shadow-pop rotate-12">
+            ⭐ 核心功能
+          </div>
+          
+          <div class="relative z-10">
+            <div class="w-16 h-16 bg-pink rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop group-hover:animate-wiggle">
+              <span class="text-3xl">🎨</span>
+            </div>
+            <h3 class="font-outfit font-bold text-2xl mb-4 text-pink">美术 Agent</h3>
+            <p class="font-jakarta text-slate-500 mb-6">解决画风、画面问题。专业级美术风格，统一的视觉语言，让游戏拥有 AAA 级画面表现。</p>
+            
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">风格精准把控</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">一致性视觉输出</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">多风格支持</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Solution 3 -->
+        <div class="bg-white border-2 border-slate-800 rounded-2xl p-8 shadow-pop-lg relative overflow-hidden group">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-amber/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          
+          <div class="relative z-10">
+            <div class="w-16 h-16 bg-amber rounded-2xl border-2 border-slate-800 flex items-center justify-center mb-6 shadow-pop group-hover:animate-wiggle">
+              <span class="text-3xl">🎯</span>
+            </div>
+            <h3 class="font-outfit font-bold text-2xl mb-4 text-amber">评测 Agent</h3>
+            <p class="font-jakarta text-slate-500 mb-6">Agent 能游玩和评测游戏，从而能自我迭代提升游戏的品质。真正的 AI 驱动开发闭环。</p>
+            
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">自动化测试</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" id="stroke3"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">持续迭代优化</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-mint rounded-full flex items-center justify-center border border-slate-800">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span class="font-jakarta text-sm">品质持续提升</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vision Section -->
+  <section id="vision" class="py-20 bg-slate-800 text-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 stripe-pattern"></div>
+    <div class="absolute top-20 left-10 w-64 h-64 bg-accent/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-80 h-80 bg-pink/20 rounded-full blur-3xl"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-16">
+        <h2 class="font-outfit font-bold text-4xl mb-4">愿景与价值</h2>
+        <p class="font-jakarta text-slate-300 text-lg max-w-2xl mx-auto">打造模块化、可组合且永续进化的游戏创作生态</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- For Humans -->
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-amber rounded-xl border-2 border-white/30 flex items-center justify-center">
+              <span class="text-2xl">👤</span>
+            </div>
+            <h3 class="font-outfit font-bold text-xl">对于人类</h3>
+          </div>
+          <ul class="space-y-4 font-jakarta text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-amber">✦</span>
+              <span><strong class="text-white">0门槛创作</strong> — 与Agent协作，赋予Agent品味</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber">✦</span>
+              <span><strong class="text-white">人人可做游戏</strong> — 无需专业技能，实现创意自由</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- For Industry -->
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-accent rounded-xl border-2 border-white/30 flex items-center justify-center">
+              <span class="text-2xl">🏭</span>
+            </div>
+            <h3 class="font-outfit font-bold text-xl">对于行业</h3>
+          </div>
+          <ul class="space-y-4 font-jakarta text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-accent">✦</span>
+              <span><strong class="text-white">全流程覆盖</strong> — 不但解决怎么实现，还解决玩法设计、美术设计、测试反馈</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-accent">✦</span>
+              <span><strong class="text-white">完整系统平台</strong> — 从概念到发布，一站式解决方案</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- For AI Agents -->
+        <div class="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-pink rounded-xl border-2 border-white/30 flex items-center justify-center">
+              <span class="text-2xl">🤖</span>
+            </div>
+            <h3 class="font-outfit font-bold text-xl">对于 AI Agent</h3>
+          </div>
+          <ul class="space-y-4 font-jakarta text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-pink">✦</span>
+              <span><strong class="text-white">挖掘潜力</strong> — 让Agent做游戏、玩游戏的潜力得到释放</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-pink">✦</span>
+              <span><strong class="text-white">娱乐价值</strong> — Agent也能娱乐，甚至从娱乐中产生社会价值</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Ultimate Vision -->
+        <div class="bg-gradient-to-br from-accent to-pink rounded-2xl p-8 border-2 border-white/30">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-white rounded-xl border-2 border-slate-800 flex items-center justify-center">
+              <span class="text-2xl">🚀</span>
+            </div>
+            <h3 class="font-outfit font-bold text-xl">终极愿景</h3>
+          </div>
+          <p class="font-jakarta text-white/90 text-lg leading-relaxed">
+            <strong>定义AI时代做游戏的方式</strong>，打造永续进化的游戏创作生态。让 AI Agent 能够自主、合作地开发，并演进引擎本身。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-cream relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-30"></div>
+    
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+      <h2 class="font-outfit font-bold text-4xl lg:text-5xl mb-6">
+        准备好<span class="text-accent">重新定义</span>游戏创作了吗？
+      </h2>
+      <p class="font-jakarta text-lg text-slate-500 mb-10 max-w-2xl mx-auto">
+        加入 FusionFun，与最前沿的 AI Agent 一起，开启游戏创作的新纪元。
+      </p>
+      
+      <div class="flex flex-wrap justify-center gap-4">
+        <button class="bg-accent text-white font-outfit font-bold px-10 py-5 rounded-full border-2 border-slate-800 shadow-pop hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-pop-hover active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1E293B] transition-all duration-300 text-lg">
+          🚀 立即开始创作
+        </button>
+        <button class="bg-white text-slate-800 font-outfit font-bold px-10 py-5 rounded-full border-2 border-slate-800 hover:bg-mint hover:shadow-pop transition-all duration-300 text-lg">
+          📋 了解更多
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-800 text-white py-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center border-2 border-white/30">
+              <span class="text-white font-outfit font-bold text-lg">F</span>
+            </div>
+            <span class="font-outfit font-bold text-xl">FusionFun</span>
+          </div>
+          <p class="font-jakarta text-slate-400 text-sm">AI Agent 原生游戏引擎，下一代游戏创作方式。</p>
+        </div>
+        
+        <div>
+          <h4 class="font-outfit font-bold mb-4">产品</h4>
+          <ul class="space-y-2 font-jakarta text-slate-400 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">功能特性</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">定价方案</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">使用文档</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-outfit font-bold mb-4">公司</h4>
+          <ul class="space-y-2 font-jakarta text-slate-400 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">关于我们</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">博客</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">加入我们</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-outfit font-bold mb-4">联系我们</h4>
+          <ul class="space-y-2 font-jakarta text-slate-400 text-sm">
+            <li>📧 hello@fusionfun.ai</li>
+            <li>🌐 www.fusionfun.ai</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="pt-8 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="font-jakarta text-slate-400 text-sm">© 2026 FusionFun. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center hover:bg-accent transition-colors">
+            <span class="text-sm">🐦</span>
+          </a>
+          <a href="#" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center hover:bg-accent transition-colors">
+            <span class="text-sm">💬</span>
+          </a>
+          <a href="#" class="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center hover:bg-accent transition-colors">
+            <span class="text-sm">📱</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Intersection Observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.shadow-pop, .shadow-pop-lg').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
